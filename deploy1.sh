@@ -55,3 +55,26 @@ if [[ "$push_tag" == "y" ]]; then
 else
     echo "Tag not pushed to GitHub."
 fi
+
+
+# Ask the user if they want to push the image to the Artifact Registry repository.
+read -p "Do you want to push the image to the Artifact Registry repository? (y/n): " PUSH_IMAGE_ARTIFACT_REGISTRY
+
+if [ "$push_to_registry" == "y" ]; then
+  # gcloud config set auth/impersonate_service_account artifact-admin-sa@grunitech-mid-project.iam.gserviceaccount.com
+  # Set the service account name
+  service_account_name="artifact-admin-sa"
+
+  # Get the service account key
+  gcloud config set auth/impersonate_service_account artifact-admin-sa@grunitech-mid-project.iam.gserviceaccount.com
+
+  gcloud auth configure-docker me-west1-docker.pkg.dev
+
+  # Impersonate the service account
+  # Push the image to the Artifact Registry repository
+  docker tag chat-app:${version} me-west1-docker.pkg.dev/grunitech-mid-project/dvorah-chat-app-images/chat-app:${version}
+
+  docker push me-west1-docker.pkg.dev/grunitech-mid-project/dvorah-chat-app-images/chat-app:${version}
+
+  echo "Image successfully pushed to Artifact Registry!"
+fi
